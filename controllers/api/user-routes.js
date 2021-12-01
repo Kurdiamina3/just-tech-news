@@ -27,6 +27,14 @@ router.get('/:id', (req, res) => {
             attributes: ['id', 'title', 'post_url', 'created_at']
           },
           {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'created_at'],
+            include: {
+              model: Post,
+              attributes: ['title']
+            }
+          },
+          {
             model: Post,
             attributes: ['title'],
             through: Vote,
@@ -48,7 +56,7 @@ router.get('/:id', (req, res) => {
   });
 
 // POST /api/users
-router.post('/', (req, res) => {
+router.post('/',withAuth, (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
     User.create({
       username: req.body.username,
@@ -70,7 +78,7 @@ router.post('/', (req, res) => {
     });
   });
 
-  router.post('/login', (req, res) => {
+  router.post('/login',withAuth, (req, res) => {
     User.findOne({
       where: {
         email: req.body.email
@@ -100,7 +108,7 @@ router.post('/', (req, res) => {
   });
 
 
-  router.post('/logout', (req, res) => {
+  router.post('/logout',withAuth, (req, res) => {
     if (req.session.loggedIn) {
       req.session.destroy(() => {
         res.status(204).end();
@@ -112,7 +120,7 @@ router.post('/', (req, res) => {
   });
 
 // PUT /api/users/1
-router.put('/:id', (req, res) => {
+router.put('/:id',withAuth, (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
     
     // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
@@ -137,7 +145,7 @@ router.put('/:id', (req, res) => {
   
 
 // DELETE /api/users/1
-router.delete('/:id', (req, res) => {
+router.delete('/:id',withAuth, (req, res) => {
     User.destroy({
       where: {
         id: req.params.id
